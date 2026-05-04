@@ -124,7 +124,7 @@ export default function AlternativesPage() {
           <p className="text-slate-500 text-sm mt-1">Tambahkan lokasi-lokasi properti yang akan dibandingkan</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="secondary" onClick={() => navigate(`/criteria/${caseId}`)}>← Kriteria</Button>
+          <Button variant="secondary" onClick={() => navigate(`/criteria-weight/${caseId}`)}>← Bobot Kriteria</Button>
           <Button onClick={openCreate}>+ Tambah Lokasi</Button>
           <Button variant="secondary" onClick={() => navigate(`/values/${caseId}`)}>Lanjut ke Nilai →</Button>
         </div>

@@ -155,8 +155,8 @@ export default function CriteriaPage() {
         </div>
         <div className="flex gap-3">
           <Button onClick={openCreate}>+ Tambah Kriteria</Button>
-          <Button variant="secondary" onClick={() => navigate(`/alternatives/${caseId}`)}>
-            Lanjut ke Alternatif →
+          <Button variant="secondary" onClick={() => navigate(`/criteria-weight/${caseId}`)}>
+            Lanjut ke Bobot Kriteria →
           </Button>
         </div>
       </div>

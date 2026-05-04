@@ -104,7 +104,7 @@ export default function ValuesPage() {
           <Button onClick={handleSave} loading={saving}>
             {saved ? '✓ Tersimpan' : 'Simpan Nilai'}
           </Button>
-          <Button variant="secondary" onClick={() => navigate(`/ahp/${caseId}`)}>Lanjut ke AHP →</Button>
+          <Button variant="secondary" onClick={() => navigate(`/alt-comparison/${caseId}`)}>Lanjut ke Perbandingan Alternatif →</Button>
         </div>
       </div>
 

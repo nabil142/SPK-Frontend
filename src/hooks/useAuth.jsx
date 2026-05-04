@@ -1,41 +1,45 @@
-import { createContext, useContext, useState } from 'react'
-import { login as loginApi } from '../services/api'
+import { createContext, useContext, useState, useCallback } from 'react'
+import { login as loginAPI } from '../services/api'
 
 const AuthContext = createContext(null)
 
+const DUMMY = { username: 'admin', password: 'admin123', role: 'admin', user_id: 1 }
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const stored = localStorage.getItem('spk_user')
-    return stored ? JSON.parse(stored) : null
+    try {
+      const s = localStorage.getItem('spk_user')
+      return s ? JSON.parse(s) : null
+    } catch { return null }
   })
 
-  const login = async (username, password) => {
+  // login(username, password) — 2 argumen terpisah sesuai LoginPage
+  const login = useCallback(async (username, password) => {
     try {
-      const res = await loginApi({ username, password })
-      const { token, user: userData } = res.data
-      localStorage.setItem('spk_token', token)
+      const { data } = await loginAPI({ username, password })
+      const userData = data.user || data
+      localStorage.setItem('spk_token', data.access_token || 'token')
       localStorage.setItem('spk_user', JSON.stringify(userData))
       setUser(userData)
       return { success: true }
-    } catch (err) {
-      // Fallback to dummy login for demo
-      if (username === 'admin' && password === 'admin123') {
-        const dummyUser = { user_id: 1, username: 'admin', role: 'admin' }
-        const dummyToken = 'dummy-token-12345'
-        localStorage.setItem('spk_token', dummyToken)
-        localStorage.setItem('spk_user', JSON.stringify(dummyUser))
-        setUser(dummyUser)
+    } catch {
+      // Fallback dummy untuk development
+      if (username === DUMMY.username && password === DUMMY.password) {
+        const userData = { user_id: 1, username: DUMMY.username, role: DUMMY.role }
+        localStorage.setItem('spk_token', 'dummy_token_dev')
+        localStorage.setItem('spk_user', JSON.stringify(userData))
+        setUser(userData)
         return { success: true }
       }
-      return { success: false, message: err.response?.data?.detail || 'Login gagal' }
+      return { success: false, message: 'Username atau password salah.' }
     }
-  }
+  }, [])
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('spk_token')
     localStorage.removeItem('spk_user')
     setUser(null)
-  }
+  }, [])
 
   return (
     <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
@@ -44,6 +48,4 @@ export function AuthProvider({ children }) {
   )
 }
 
-export function useAuth() {
-  return useContext(AuthContext)
-}
+export const useAuth = () => useContext(AuthContext)

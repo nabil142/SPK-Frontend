@@ -218,19 +218,20 @@ export default function AltComparisonPage() {
       <StepNav caseId={caseId} currentStep={5} />
 
       {/* Header */}
-      <div>
-        <div className="flex items-center gap-3 mb-1">
-          <span className="text-2xl">📊</span>
-          <h1 className="text-2xl font-bold text-white">Langkah 5: Perbandingan Alternatif (AHP)</h1>
-        </div>
-        <p className="text-slate-500 text-sm ml-11">
-          Bandingkan setiap pasang lokasi untuk tiap kriteria. Langkah ini hanya dibutuhkan oleh AHP.
-        </p>
-      </div>
+<div className="text-left">
+  <h1 className="text-2xl font-bold">
+    Langkah 5: Perbandingan Alternatif
+  </h1>
+
+  <p className="text-gray-400 mt-1">
+    Bandingkan setiap pasang lokasi untuk tiap kriteria. 
+    Langkah ini hanya dibutuhkan oleh AHP.
+  </p>
+</div>
 
       {/* AHP only badge */}
       <div className="flex items-start gap-3 bg-purple-500/10 border border-purple-500/20 rounded-xl px-4 py-3">
-        <span className="text-purple-400 shrink-0">🎯</span>
+        <span className="text-purple-400 shrink-0"></span>
         <p className="text-purple-300 text-sm">
           Langkah ini <span className="font-bold">khusus untuk AHP</span>. Metode lain (SAW, WP, TOPSIS, SMART) sudah dapat dihitung dari langkah sebelumnya.
         </p>
