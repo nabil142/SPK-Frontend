@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getProjects, createProject, deleteProject } from '../services/api'
+import { getCases, createCase, deleteCase } from '../services/api'
 import { StatCard } from '../components/Card'
 import Button from '../components/Button'
 import Modal from '../components/Modal'
@@ -41,37 +41,36 @@ const DUMMY_PROJECTS = [
 ]
 
 const STATUS_STYLE = {
-  Selesai:      'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
+  Selesai: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
   'Dalam Proses': 'bg-amber-500/15 text-amber-400 border-amber-500/25',
-  Draft:        'bg-slate-700/50 text-slate-400 border-slate-700/50',
+  Draft: 'bg-slate-700/50 text-slate-400 border-slate-700/50',
 }
 
 // 6 steps sesuai alur baru
 const STEPS = [
-  { num: 1, label: 'Kriteria',         path: 'criteria'        },
-  { num: 2, label: 'Skala Kriteria',   path: 'criteria-weight' },
-  { num: 3, label: 'Alternatif',       path: 'alternatives'    },
-  { num: 4, label: 'Nilai',            path: 'values'          },
-  { num: 5, label: 'Skala Alt/AHP',    path: 'alt-comparison'  },
-  { num: 6, label: 'Hasil',            path: 'results'         },
+  { num: 1, label: 'Kriteria', path: 'criteria' },
+  { num: 2, label: 'Skala Kriteria', path: 'criteria-weight' },
+  { num: 3, label: 'Alternatif', path: 'alternatives' },
+  { num: 4, label: 'Nilai', path: 'values' },
+  { num: 5, label: 'Skala Alt/AHP', path: 'alt-comparison' },
+  { num: 6, label: 'Hasil', path: 'results' },
 ]
 
 function ProjectStepBar({ currentStep, caseId, navigate }) {
   return (
     <div className="flex items-center gap-0.5 mb-4">
       {STEPS.map((step, i) => {
-        const isDone    = step.num < currentStep
+        const isDone = step.num < currentStep
         const isCurrent = step.num === currentStep
         return (
           <button
             key={step.num}
             onClick={() => navigate(`/${step.path}/${caseId}`)}
             title={step.label}
-            className={`flex-1 h-1.5 rounded-full transition-all hover:opacity-80 ${
-              isDone    ? 'bg-emerald-500' :
+            className={`flex-1 h-1.5 rounded-full transition-all hover:opacity-80 ${isDone ? 'bg-emerald-500' :
               isCurrent ? 'bg-blue-500' :
-                          'bg-slate-700'
-            }`}
+                'bg-slate-700'
+              }`}
           />
         )
       })}
@@ -83,25 +82,35 @@ export default function DashboardPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [projects, setProjects] = useState(DUMMY_PROJECTS)
-  const [loading,  setLoading]  = useState(false)
+  const [loading, setLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
-  const [form,     setForm]     = useState({ case_name: '', description: '' })
-  const [saving,   setSaving]   = useState(false)
+  const [form, setForm] = useState({ case_name: '', description: '' })
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => { fetchProjects() }, [])
 
   const fetchProjects = async () => {
     setLoading(true)
-    try { const res = await getProjects(); setProjects(res.data) } catch {} finally { setLoading(false) }
+    try {
+      const res = await getCases()
+      setProjects(res.data.data || res.data) // tergantung response backend
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleCreate = async () => {
     if (!form.case_name.trim()) return
     setSaving(true)
     try {
-      const res = await createProject({ ...form, user_id: user?.user_id })
-      setProjects(prev => [res.data, ...prev])
-    } catch {
+      const res = await createCase({
+        case_name: form.case_name,
+        description: form.description
+      })
+      setProjects(prev => [res.data.data || res.data, ...prev])
+f    } catch {
       setProjects(prev => [{
         case_id: Date.now(),
         ...form,
@@ -120,7 +129,7 @@ export default function DashboardPage() {
 
   const handleDelete = async (id) => {
     if (!confirm('Hapus project ini?')) return
-    try { await deleteProject(id) } catch {}
+    try { await deleteCase(id) } catch { }
     setProjects(prev => prev.filter(p => p.case_id !== id))
   }
 
@@ -150,10 +159,10 @@ export default function DashboardPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Total Project"  value={projects.length}                                             accent />
-        <StatCard label="Selesai"        value={projects.filter(p => p.status === 'Selesai').length}        />
-        <StatCard label="Dalam Proses"   value={projects.filter(p => p.status === 'Dalam Proses').length}   />
-        <StatCard label="Draft"          value={projects.filter(p => p.status === 'Draft').length}          />
+        <StatCard label="Total Project" value={projects.length} accent />
+        <StatCard label="Selesai" value={projects.filter(p => p.status === 'Selesai').length} />
+        <StatCard label="Dalam Proses" value={projects.filter(p => p.status === 'Dalam Proses').length} />
+        <StatCard label="Draft" value={projects.filter(p => p.status === 'Draft').length} />
       </div>
 
       {/* Alur info banner */}
@@ -263,13 +272,12 @@ export default function DashboardPage() {
                       <button
                         key={step.num}
                         onClick={() => navigate(`/${step.path}/${proj.case_id}`)}
-                        className={`text-[10px] font-medium px-1.5 py-1.5 rounded-lg border transition-colors text-center leading-tight ${
-                          step.num === (proj.current_step ?? 1)
-                            ? 'bg-blue-600/15 border-blue-500/30 text-blue-400'
-                            : step.num < (proj.current_step ?? 1)
+                        className={`text-[10px] font-medium px-1.5 py-1.5 rounded-lg border transition-colors text-center leading-tight ${step.num === (proj.current_step ?? 1)
+                          ? 'bg-blue-600/15 border-blue-500/30 text-blue-400'
+                          : step.num < (proj.current_step ?? 1)
                             ? 'bg-emerald-500/8 border-emerald-500/20 text-emerald-500/70 hover:text-emerald-400'
                             : 'bg-slate-800/50 border-slate-700/50 text-slate-600 hover:text-slate-400'
-                        }`}
+                          }`}
                       >
                         {step.num}. {step.label}
                       </button>

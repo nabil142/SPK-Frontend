@@ -1,70 +1,119 @@
-import axios from 'axios'
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api/',
-  headers: { 'Content-Type': 'application/json' },
-})
+  baseURL: "http://localhost:5000/api/v1",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('spk_token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+  const token = localStorage.getItem("token");
 
-api.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem('spk_token')
-      localStorage.removeItem('spk_user')
-      window.location.href = '/login'
-    }
-    return Promise.reject(err)
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-)
 
-// Auth
-export const login = (data) => api.post('/login', data)
-export const logout = () => api.post('/logout')
+  return config;
+});
 
-// Projects
-export const getProjects = () => api.get('/projects')
-export const getProject = (id) => api.get('/projects/' + id)
-export const createProject = (data) => api.post('/projects', data)
-export const updateProject = (id, data) => api.put('/projects/' + id, data)
-export const deleteProject = (id) => api.delete('/projects/' + id)
+// =====================================================
+// AUTH
+// =====================================================
 
-// Step 1 - Kriteria
-export const getCriteria = (caseId) => api.get('/criteria?case_id=' + caseId)
-export const createCriteria = (data) => api.post('/criteria', data)
-export const updateCriteria = (id, data) => api.put('/criteria/' + id, data)
-export const deleteCriteria = (id) => api.delete('/criteria/' + id)
+export const login = (data) => api.post("/auth/login", data);
 
-// Step 2 - Pembobotan Kriteria (Skala Perbandingan Berpasangan)
-// Dipakai SEMUA metode: AHP, SAW, WP, TOPSIS, SMART
-export const getCriteriaComparisons = (caseId) => api.get('/criteria-comparisons?case_id=' + caseId)
-export const saveCriteriaComparisons = (data) => api.post('/criteria-comparisons', data)
-export const validateCriteriaConsistency = (caseId) => api.post('/criteria-comparisons/validate', { case_id: caseId })
+// =====================================================
+// CASES
+// =====================================================
 
-// Step 3 - Alternatif
-export const getAlternatives = (caseId) => api.get('/alternatives?case_id=' + caseId)
-export const createAlternative = (data) => api.post('/alternatives', data)
-export const updateAlternative = (id, data) => api.put('/alternatives/' + id, data)
-export const deleteAlternative = (id) => api.delete('/alternatives/' + id)
+export const getCases = () => api.get("/cases");
+export const getCase = (id) => api.get(`/cases/${id}`);
+export const createCase = (data) => api.post("/cases", data);
+export const updateCase = (id, data) => api.put(`/cases/${id}`, data);
+export const deleteCase = (id) => api.delete(`/cases/${id}`);
 
-// Step 4 - Nilai Alternatif (matriks alt x kriteria)
-// Setelah ini SAW, WP, TOPSIS, SMART sudah bisa dihitung
-export const getValues = (caseId) => api.get('/values?case_id=' + caseId)
-export const saveValues = (data) => api.post('/values', data)
 
-// Step 5 - Perbandingan Alternatif per Kriteria (KHUSUS AHP)
-export const getAltComparisons = (caseId) => api.get('/alt-comparisons?case_id=' + caseId)
-export const saveAltComparisons = (data) => api.post('/alt-comparisons', data)
-export const validateAltConsistency = (caseId) => api.post('/alt-comparisons/validate', { case_id: caseId })
+// =====================================================
+// CRITERIA
+// =====================================================
 
-// Step 6 - Hitung & Hasil
-export const calculate = (caseId) => api.post('/calculate', { case_id: caseId })
-export const getResults = (caseId) => api.get('/results?case_id=' + caseId)
-export const predictML = (caseId) => api.post('/predict', { case_id: caseId })
+export const getCriteria = (caseId) => api.get(`/criteria/${caseId}`);
+export const createCriteria = (data) => api.post("/criteria", data);
+export const updateCriteria = (id, data) => api.put(`/criteria/${id}`, data);
+export const deleteCriteria = (id) => api.delete(`/criteria/${id}`);
 
-export default api
+
+// =====================================================
+// ALTERNATIVES
+// =====================================================
+
+export const getAlternatives = (caseId) => api.get(`/alternatives/${caseId}`);
+export const createAlternative = (data) => api.post("/alternatives", data);
+export const updateAlternative = (id, data) => api.put(`/alternatives/${id}`, data);
+export const deleteAlternative = (id) => api.delete(`/alternatives/${id}`);
+
+
+// =====================================================
+// VALUES (MATRIX)
+// =====================================================
+
+export const getValues = (caseId) => api.get(`/values/${caseId}`);
+export const saveValues = (data) => api.post("/values", data);
+
+
+// =====================================================
+// AHP (CRITERIA COMPARISON)
+// =====================================================
+
+export const saveCriteriaComparisons = (data) =>
+  api.post("/spk/ahp/comparisons", data);
+
+export const calculateAHP = (caseId) =>
+  api.post(`/spk/ahp/calculate/${caseId}`);
+
+
+// =====================================================
+// AHP (ALTERNATIVE COMPARISON - PURE AHP)
+// =====================================================
+
+export const saveAltComparisons = (data) =>
+  api.post("/spk/ahp/alternative-comparisons", data);
+
+export const calculateAHPRanking = (caseId) =>
+  api.post(`/spk/ahp/calculate-ranking/${caseId}`);
+
+
+// =====================================================
+// SPK HYBRID METHODS
+// =====================================================
+
+export const calculateSAW = (caseId) =>
+  api.post(`/spk/saw/${caseId}`);
+
+export const calculateSMART = (caseId) =>
+  api.post(`/spk/smart/${caseId}`);
+
+export const calculateWP = (caseId) =>
+  api.post(`/spk/wp/${caseId}`);
+
+export const calculateTOPSIS = (caseId) =>
+  api.post(`/spk/topsis/${caseId}`);
+
+
+// =====================================================
+// RESULTS
+// =====================================================
+
+export const getResults = (caseId, method = "SAW") =>
+  api.get(`/spk/results/${caseId}?method=${method}`);
+
+
+// =====================================================
+// MACHINE LEARNING DATASET
+// =====================================================
+
+export const getDataset = (caseId, method = "SAW") =>
+  api.get(`/ml/dataset/${caseId}?method=${method}`);
+
+export default api;
