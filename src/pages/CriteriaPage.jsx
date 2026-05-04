@@ -1,166 +1,167 @@
-import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   getCriteria,
   createCriteria,
   updateCriteria,
-  deleteCriteria
-} from '../services/api'
+  deleteCriteria,
+} from "../services/api";
 
-import Button from '../components/Button'
-import Table from '../components/Table'
-import Modal from '../components/Modal'
-import { FormInput, FormSelect } from '../components/FormInput'
+import Button from "../components/Button";
+import Table from "../components/Table";
+import Modal from "../components/Modal";
+import { FormInput, FormSelect } from "../components/FormInput";
 
 export default function CriteriaPage() {
-  const { caseId } = useParams()
-  const navigate = useNavigate()
+  const { caseId } = useParams();
+  const navigate = useNavigate();
 
-  const [criteria, setCriteria] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [criteria, setCriteria] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const [showModal, setShowModal] = useState(false)
-  const [editing, setEditing] = useState(null)
+  const [showModal, setShowModal] = useState(false);
+  const [editing, setEditing] = useState(null);
 
   const [form, setForm] = useState({
-    criteria_name: '',
-    criteria_type: 'benefit'
-  })
+    criteria_name: "",
+    criteria_type: "benefit",
+    weight: 0,
+  });
 
-  const [saving, setSaving] = useState(false)
+  const [saving, setSaving] = useState(false);
 
   // ================================
   // FETCH DATA
   // ================================
   useEffect(() => {
-    fetchCriteria()
-  }, [caseId])
+    fetchCriteria();
+  }, [caseId]);
 
   const fetchCriteria = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await getCriteria(caseId)
-      const data = res.data.data || res.data
+      const res = await getCriteria(caseId);
+      const data = res.data.data || res.data;
 
-      setCriteria(data)
+      setCriteria(data);
     } catch (err) {
-      console.error("GET CRITERIA ERROR:", err)
+      console.error("GET CRITERIA ERROR:", err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // ================================
   // MODAL CONTROL
   // ================================
   const openCreate = () => {
-    setEditing(null)
-    setForm({ criteria_name: '', criteria_type: 'benefit' })
-    setShowModal(true)
-  }
+    setEditing(null);
+    setForm({ criteria_name: "", criteria_type: "benefit", weight: 0 });
+    setShowModal(true);
+  };
 
   const openEdit = (row) => {
-    setEditing(row)
+    setEditing(row);
     setForm({
       criteria_name: row.criteria_name,
-      criteria_type: row.criteria_type
-    })
-    setShowModal(true)
-  }
+      criteria_type: row.criteria_type,
+      weight: row.weight ?? 0,
+    });
+    setShowModal(true);
+  };
 
   // ================================
   // SAVE (CREATE / UPDATE)
   // ================================
   const handleSave = async () => {
-    if (!form.criteria_name.trim()) return
+    if (!form.criteria_name.trim()) return;
 
-    setSaving(true)
+    setSaving(true);
 
     try {
       if (editing) {
-        const id = editing.criteria_id || editing.id
+        const id = editing.criteria_id || editing.id;
 
         await updateCriteria(id, {
+          case_id: Number(caseId),
           criteria_name: form.criteria_name,
           criteria_type: form.criteria_type,
-          case_id: Number(caseId)
-        })
+          weight: form.weight,
+        });
 
-        setCriteria(prev =>
-          prev.map(c =>
-            (c.criteria_id || c.id) === id
-              ? { ...c, ...form }
-              : c
-          )
-        )
+        setCriteria((prev) =>
+          prev.map((c) =>
+            (c.criteria_id || c.id) === id ? { ...c, ...form } : c,
+          ),
+        );
       } else {
         const res = await createCriteria({
+          case_id: Number(caseId),
           criteria_name: form.criteria_name,
           criteria_type: form.criteria_type,
-          case_id: Number(caseId)
-        })
+          weight: form.weight,
+        });
 
-        const newData = res.data.data || res.data
+        const newData = res.data.data || res.data;
 
-        setCriteria(prev => [...prev, newData])
+        setCriteria((prev) => [...prev, newData]);
       }
-
     } catch (err) {
-      console.error("SAVE ERROR:", err)
+      console.error("SAVE ERROR:", err);
     } finally {
-      setSaving(false)
-      setShowModal(false)
+      setSaving(false);
+      setShowModal(false);
     }
-  }
+  };
 
   // ================================
   // DELETE
   // ================================
   const handleDelete = async (id) => {
-    if (!confirm('Hapus kriteria ini?')) return
+    if (!confirm("Hapus kriteria ini?")) return;
 
     try {
-      await deleteCriteria(id)
-      setCriteria(prev =>
-        prev.filter(c => (c.criteria_id || c.id) !== id)
-      )
+      await deleteCriteria(id);
+      setCriteria((prev) => prev.filter((c) => (c.criteria_id || c.id) !== id));
     } catch (err) {
-      console.error("DELETE ERROR:", err)
+      console.error("DELETE ERROR:", err);
     }
-  }
+  };
 
   // ================================
   // TABLE CONFIG
   // ================================
   const columns = [
     {
-      key: 'no',
-      label: 'No',
-      width: '60px',
-      render: (_, __, idx) => idx + 1
+      key: "no",
+      label: "No",
+      width: "60px",
+      render: (_, __, idx) => idx + 1,
     },
     {
-      key: 'criteria_name',
-      label: 'Nama Kriteria'
+      key: "criteria_name",
+      label: "Nama Kriteria",
     },
     {
-      key: 'criteria_type',
-      label: 'Tipe',
+      key: "criteria_type",
+      label: "Tipe",
       render: (v) => (
-        <span className={`text-xs font-semibold px-2 py-1 rounded ${
-          v === 'benefit'
-            ? 'bg-green-500/10 text-green-400'
-            : 'bg-red-500/10 text-red-400'
-        }`}>
-          {v === 'benefit' ? 'Benefit' : 'Cost'}
+        <span
+          className={`text-xs font-semibold px-2 py-1 rounded ${
+            v === "benefit"
+              ? "bg-green-500/10 text-green-400"
+              : "bg-red-500/10 text-red-400"
+          }`}
+        >
+          {v === "benefit" ? "Benefit" : "Cost"}
         </span>
-      )
+      ),
     },
     {
-      key: 'actions',
-      label: 'Aksi',
+      key: "actions",
+      label: "Aksi",
       render: (_, row) => {
-        const id = row.criteria_id || row.id
+        const id = row.criteria_id || row.id;
 
         return (
           <div className="flex gap-2">
@@ -171,23 +172,22 @@ export default function CriteriaPage() {
               Hapus
             </Button>
           </div>
-        )
-      }
-    }
-  ]
+        );
+      },
+    },
+  ];
 
   const tableData = criteria.map((c, i) => ({
     ...c,
     criteria_id: c.criteria_id || c.id,
-    no: i + 1
-  }))
+    no: i + 1,
+  }));
 
   // ================================
   // UI
   // ================================
   return (
     <div className="p-8 space-y-6">
-
       {/* HEADER */}
       <div className="flex justify-between">
         <div>
@@ -198,9 +198,7 @@ export default function CriteriaPage() {
         </div>
 
         <div className="flex gap-2">
-          <Button onClick={openCreate}>
-            + Tambah
-          </Button>
+          <Button onClick={openCreate}>+ Tambah</Button>
 
           <Button
             variant="secondary"
@@ -223,10 +221,9 @@ export default function CriteriaPage() {
       <Modal
         open={showModal}
         onClose={() => setShowModal(false)}
-        title={editing ? 'Edit Kriteria' : 'Tambah Kriteria'}
+        title={editing ? "Edit Kriteria" : "Tambah Kriteria"}
       >
         <div className="space-y-4">
-
           <FormInput
             label="Nama Kriteria"
             value={form.criteria_name}
@@ -247,10 +244,7 @@ export default function CriteriaPage() {
           </FormSelect>
 
           <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              onClick={() => setShowModal(false)}
-            >
+            <Button variant="ghost" onClick={() => setShowModal(false)}>
               Batal
             </Button>
 
@@ -258,10 +252,8 @@ export default function CriteriaPage() {
               Simpan
             </Button>
           </div>
-
         </div>
       </Modal>
-
     </div>
-  )
+  );
 }

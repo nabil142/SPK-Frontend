@@ -1,4 +1,9 @@
-export default function Table({ columns, data, loading = false, emptyText = 'Tidak ada data' }) {
+export default function Table({
+  columns,
+  data,
+  loading = false,
+  emptyText = "Tidak ada data",
+}) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
@@ -18,11 +23,29 @@ export default function Table({ columns, data, loading = false, emptyText = 'Tid
         <tbody>
           {loading ? (
             <tr>
-              <td colSpan={columns.length} className="px-4 py-10 text-center text-slate-500">
+              <td
+                colSpan={columns.length}
+                className="px-4 py-10 text-center text-slate-500"
+              >
                 <div className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                  <svg
+                    className="animate-spin w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    />
                   </svg>
                   <span>Memuat data...</span>
                 </div>
@@ -30,7 +53,10 @@ export default function Table({ columns, data, loading = false, emptyText = 'Tid
             </tr>
           ) : data.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className="px-4 py-10 text-center text-slate-500">
+              <td
+                colSpan={columns.length}
+                className="px-4 py-10 text-center text-slate-500"
+              >
                 {emptyText}
               </td>
             </tr>
@@ -42,7 +68,9 @@ export default function Table({ columns, data, loading = false, emptyText = 'Tid
               >
                 {columns.map((col) => (
                   <td key={col.key} className="px-4 py-3 text-slate-300">
-                    {col.render ? col.render(row[col.key], row) : row[col.key]}
+                    {col.render
+                      ? col.render(row[col.key], row, i)
+                      : row[col.key]}
                   </td>
                 ))}
               </tr>
@@ -51,5 +79,5 @@ export default function Table({ columns, data, loading = false, emptyText = 'Tid
         </tbody>
       </table>
     </div>
-  )
+  );
 }
