@@ -5,6 +5,7 @@ import {
   createCriteria,
   updateCriteria,
   deleteCriteria,
+  updateCaseStep,
 } from "../services/api";
 
 import Button from "../components/Button";
@@ -30,6 +31,8 @@ export default function CriteriaPage() {
 
   const [saving, setSaving] = useState(false);
 
+  const isCriteriaValid = criteria.length >= 2;
+
   // ================================
   // FETCH DATA
   // ================================
@@ -42,10 +45,25 @@ export default function CriteriaPage() {
     try {
       const res = await getCriteria(caseId);
       const data = res.data.data || res.data;
-
       setCriteria(data);
     } catch (err) {
       console.error("GET CRITERIA ERROR:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ================================
+  // NEXT STEP
+  // ================================
+  const handleNextStep = async () => {
+    try {
+      setLoading(true);
+      await updateCaseStep(caseId, 2); // update database ke step 2
+      navigate(`/criteria-weight/${caseId}`);
+    } catch (err) {
+      console.error("Gagal update step", err);
+      alert("Gagal mengupdate progress ke server.");
     } finally {
       setLoading(false);
     }
@@ -103,7 +121,6 @@ export default function CriteriaPage() {
         });
 
         const newData = res.data.data || res.data;
-
         setCriteria((prev) => [...prev, newData]);
       }
     } catch (err) {
@@ -162,7 +179,6 @@ export default function CriteriaPage() {
       label: "Aksi",
       render: (_, row) => {
         const id = row.criteria_id || row.id;
-
         return (
           <div className="flex gap-2">
             <Button size="sm" onClick={() => openEdit(row)}>
@@ -199,10 +215,10 @@ export default function CriteriaPage() {
 
         <div className="flex gap-2">
           <Button onClick={openCreate}>+ Tambah</Button>
-
           <Button
             variant="secondary"
-            onClick={() => navigate(`/criteria-weight/${caseId}`)}
+            onClick={handleNextStep}
+            disabled={!isCriteriaValid || loading}
           >
             Lanjut →
           </Button>

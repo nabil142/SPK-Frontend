@@ -33,7 +33,9 @@ export const createCase = (data) => api.post("/cases", data);
 export const updateCase = (id, data) => api.put(`/cases/${id}`, data);
 export const deleteCase = (id) => api.delete(`/cases/${id}`);
 
-
+export const updateCaseStep = (caseId, stepNumber) => {
+  return api.put(`/cases/${caseId}/step`, { current_step: stepNumber }); 
+};
 // =====================================================
 // CRITERIA
 // =====================================================

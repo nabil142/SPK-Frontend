@@ -5,6 +5,7 @@ import {
   createAlternative,
   updateAlternative,
   deleteAlternative,
+  updateCaseStep,
 } from "../services/api";
 import Button from "../components/Button";
 import Table from "../components/Table";
@@ -48,6 +49,7 @@ export default function AlternativesPage() {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({ alternative_name: "", description: "" });
   const [saving, setSaving] = useState(false);
+  const isAltsValid = alts.length >= 2;
 
   useEffect(() => {
     fetchAlts();
@@ -73,6 +75,20 @@ export default function AlternativesPage() {
     setEditing(null);
     setForm({ alternative_name: "", description: "" });
     setShowModal(true);
+  };
+
+  const handleNextStep = async () => {
+    if (!isAltsValid) return alert("Minimal harus ada 2 alternatif/lokasi!");
+
+    try {
+      setLoading(true);
+      await updateCaseStep(caseId, 4); // Update database ke step 4 (Nilai)
+      navigate(`/values/${caseId}`);
+    } catch (err) {
+      console.error("Gagal update step", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const openEdit = (row) => {
@@ -210,7 +226,8 @@ export default function AlternativesPage() {
           <Button onClick={openCreate}>+ Tambah Lokasi</Button>
           <Button
             variant="secondary"
-            onClick={() => navigate(`/values/${caseId}`)}
+            onClick={handleNextStep}
+            disabled={!isAltsValid || loading}
           >
             Lanjut ke Nilai →
           </Button>
