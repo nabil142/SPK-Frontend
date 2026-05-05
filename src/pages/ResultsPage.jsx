@@ -11,7 +11,7 @@ import {
 } from "../services/api";
 
 import Button from "../components/Button";
-import StepNav from "../components/StepNav";
+import StepNav from "../components/stepnav";
 
 const METHODS = [
   {

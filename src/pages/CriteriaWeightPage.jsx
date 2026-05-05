@@ -7,7 +7,7 @@ import {
   calculateAHP,
 } from "../services/api";
 import Button from "../components/Button";
-import StepNav from "../components/StepNav";
+import StepNav from "../components/stepnav";
 
 const SCALE_STEPS = [9, 7, 5, 3, 1, 3, 5, 7, 9];
 const SCALE_VALUES = [1 / 9, 1 / 7, 1 / 5, 1 / 3, 1, 3, 5, 7, 9];
