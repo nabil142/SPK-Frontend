@@ -125,7 +125,7 @@ export default function MLPage() {
 
   const loadCriteria = async () => {
     try {
-      const res = await fetch('https://spk-property-backend-production.up.railway.app/v1/ml/criteria-options', {
+      const res = await fetch('https://spk-property-backend-production.up.railway.app/api/v1/ml/criteria-options', {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
