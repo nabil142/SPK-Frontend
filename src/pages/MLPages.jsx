@@ -204,6 +204,9 @@ export default function MLPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Gagal prediksi')
 
+      setPrediction(data)
+
+    
     } catch (err) {
       console.error(err)
       setError(err.message)
