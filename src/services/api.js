@@ -114,7 +114,8 @@ export const getResults = (caseId, method = "SAW") =>
 // MACHINE LEARNING DATASET
 // =====================================================
 
-export const getDataset = (caseId, method = "SAW") =>
-  api.get(`/ml/dataset/${caseId}?method=${method}`);
+export const getDataset = (method = "SAW") =>
+  api.get(`/ml/dataset?method=${method}`);
+
 
 export default api;
