@@ -125,7 +125,7 @@ export default function MLPage() {
 
   const loadCriteria = async () => {
     try {
-      const res = await fetch('http://127.0.0.1:5000/api/v1/ml/criteria-options', {
+      const res = await fetch('https://spk-property-backend-production.up.railway.app/v1/ml/criteria-options', {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
@@ -172,7 +172,7 @@ export default function MLPage() {
       if (!Array.isArray(selectedCriteria) || selectedCriteria.length < 1)
         throw new Error('Pilih minimal 1 kriteria')
 
-      const datasetRes = await fetch('http://127.0.0.1:5000/api/v1/ml/dataset?method=SAW', {
+      const datasetRes = await fetch('https://spk-property-backend-production.up.railway.app/api/v1/ml/dataset?method=SAW', {
         headers: { Authorization: `Bearer ${token}` }
       })
       const datasetData = await datasetRes.json()
@@ -206,7 +206,7 @@ export default function MLPage() {
 
       setPrediction(data)
 
-      await fetch('http://127.0.0.1:5000/api/v1/ml/save-prediction', {
+      await fetch('https://spk-property-backend-production.up.railway.app/api/v1/ml/save-prediction', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
