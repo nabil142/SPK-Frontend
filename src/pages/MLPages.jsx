@@ -204,21 +204,6 @@ export default function MLPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Gagal prediksi')
 
-      setPrediction(data)
-
-      await fetch('https://spk-property-backend-production.up.railway.app/api/v1/ml/save-prediction', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          alternative_name: alternativeName,
-          criteria_used: selectedCriteria,
-          predicted_score: data.predicted_score,
-          predicted_rank: data.estimated_rank
-        })
-      })
     } catch (err) {
       console.error(err)
       setError(err.message)
