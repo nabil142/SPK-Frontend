@@ -193,7 +193,7 @@ export default function MLPage() {
         features: selectedIndexes.map(i => s.features[i])
       }))
 
-      const res = await fetch('http://127.0.0.1:8000/ml/predict-dynamic', {
+      const res = await fetch('https://spk-ml-production.up.railway.app/ml/predict-dynamic', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
